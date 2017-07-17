@@ -1,0 +1,69 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #eee;
+    text-align: center;
+    font-family: 'Circular Book';
+    border-top: 10px solid #e30066;
+}
+
+h1 {
+    font-family: 'Circular Bold';
+}
+
+.container {
+    margin: auto;
+    max-width: 1024px;
+    padding: 0 20px;
+}
+
+.puzzle-container{
+    position: relative;
+    margin: auto;
+    /*max-width: 500px;*/
+}
+
+#puzzle-image {
+    box-shadow:  0 0 0 5px #e1e1e1;
+    transition: all .5s;
+}
+
+#puzzle-solved {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: all .5s;
+}
+
+.puzzle-col {
+    transform: translate3d(0,0,0);
+    transition: all .5s;
+    transition-delay: 1s;
+}
+
+.object-details {
+    text-align: left;
+}
+
+.object-title {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all .5s;
+    transition-delay: 1.5s;
+}
+
+.game-area.solved #puzzle-solved {
+    opacity: 1;
+}
+
+.game-area.solved #puzzle-image {
+    opacity: 0;
+}
+
+.game-area.solved .object-title {
+    opacity: 1;
+    transform: translateX(0px);
+}
