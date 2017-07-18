@@ -1,0 +1,135 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #efefef;
+  text-align: center;
+  font-family: 'Circular Book';
+  border-top: 10px solid #e30066;
+  padding: 0; }
+
+h1 {
+  font-family: 'Circular Bold'; }
+
+.container {
+  margin: auto;
+  max-width: 1024px;
+  padding: 0 20px; }
+
+.sk-cube-grid {
+  width: 100px;
+  height: 100px;
+  margin: 100px auto; }
+
+.sk-cube-grid .sk-cube {
+  width: 22%;
+  height: 22%;
+  margin: 2%;
+  background-color: #333;
+  float: left;
+  animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out; }
+
+.sk-cube-grid .sk-cube1 {
+  animation-delay: 0.2s; }
+
+.sk-cube-grid .sk-cube2 {
+  animation-delay: 0.3s; }
+
+.sk-cube-grid .sk-cube3 {
+  animation-delay: 0.4s; }
+
+.sk-cube-grid .sk-cube4 {
+  animation-delay: 0.1s; }
+
+.sk-cube-grid .sk-cube5 {
+  animation-delay: 0.2s; }
+
+.sk-cube-grid .sk-cube6 {
+  animation-delay: 0.3s; }
+
+.sk-cube-grid .sk-cube7 {
+  animation-delay: 0s; }
+
+.sk-cube-grid .sk-cube8 {
+  animation-delay: 0.1s; }
+
+.sk-cube-grid .sk-cube9 {
+  animation-delay: 0.2s; }
+
+@keyframes sk-cubeGridScaleDelay {
+  0%,
+  100%,
+  70% {
+    transform: scale3D(1, 1, 1); }
+  35% {
+    transform: scale3D(0, 0, 1); } }
+
+#loading-screen {
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: all 1s; }
+  #loading-screen.loaded {
+    opacity: 0; }
+
+#puzzle-container {
+  position: relative;
+  margin: auto;
+  width: 100%;
+  padding-bottom: 100%;
+  background: pink; }
+  #puzzle-container canvas,
+  #puzzle-container img {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 100%; }
+  #puzzle-container.tall-puzzle-image canvas,
+  #puzzle-container.tall-puzzle-image img {
+    height: 100%;
+    width: auto; }
+
+#puzzle-image {
+  z-index: 3;
+  background: lightgreen; }
+
+#puzzle-solved {
+  z-index: 2;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  opacity: 0; }
+
+.puzzle-col {
+  transform: translate3d(0, 0, 0); }
+
+.object-details {
+  text-align: left; }
+  .object-details .detail {
+    margin-bottom: 15px;
+    opacity: 0;
+    transform: translateX(-30px); }
+  .object-details .object-title {
+    font-family: 'Circular Bold'; }
+
+.solved #puzzle-solved {
+  opacity: 1; }
+
+.solved #puzzle-image {
+  opacity: 0; }
+
+.solved .detail {
+  opacity: 1;
+  transform: translateX(0px); }
