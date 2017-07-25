@@ -1,6 +1,7 @@
 {
   "name": "maas-assessment",
   "version": "0.1.0",
+  "homepage": "http://nickmitchell.me/projects/maas-assessment",
   "private": true,
   "dependencies": {
     "graphql-tag": "^2.4.2",

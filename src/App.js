@@ -1,12 +1,10 @@
 import React, {Component} from 'react';
 import {ApolloClient, createNetworkInterface, gql} from 'react-apollo';
 import {Grid, Row, Col} from 'react-flexbox-grid';
-// import {Container, Row, Col, Button} from 'react-bootstrap';
 
 class App extends Component {
 
     constructor(props) {
-
         super(props);
 
         //initial state
@@ -15,7 +13,8 @@ class App extends Component {
             solved: false,
             totalObjects: null,
             maasObject: null,
-            puzzleIsActive: false
+            puzzleIsActive: false,
+            showDetails: false
         }
 
         //bindings
@@ -26,19 +25,19 @@ class App extends Component {
         this.cleanUpPuzzle = this.cleanUpPuzzle.bind(this);
 
         //puzzle defaults
-        window.puzzlePieces.defaultMixed = true;
-        window.puzzlePieces.defaultSimple = true;
-        window.puzzlePieces.defaultLevel = 0;
-        window.puzzlePieces.defaultPolygon = true;
-        window.puzzlePieces.defaultMatchcolor = '#e30066';
-        window.puzzlePieces.defaultFalsecolor = '';
-        window.puzzlePieces.defaultAreacolor = '#e0e0e0';
-        window.puzzlePieces.defaultBgrndcolor = '#000000';
-        window.puzzlePieces.defaultBorderwide = 5;
-        window.puzzlePieces.defaultAreaopacity = 0;
-        window.puzzlePieces.defaultBorderopacity = 0.2;
-        window.puzzlePieces.defaultShadowopacity = 0.3;
-        window.puzzlePieces.defaultCallback = () => {
+        puzzleGame.defaultMixed = true;
+        puzzleGame.defaultSimple = true;
+        puzzleGame.defaultLevel = 0;
+        puzzleGame.defaultPolygon = true;
+        puzzleGame.defaultMatchcolor = '#e30066';
+        puzzleGame.defaultFalsecolor = '';
+        puzzleGame.defaultAreacolor = '#e0e0e0';
+        puzzleGame.defaultBgrndcolor = '#000000';
+        puzzleGame.defaultBorderwide = 5;
+        puzzleGame.defaultAreaopacity = 0;
+        puzzleGame.defaultBorderopacity = 0.2;
+        puzzleGame.defaultShadowopacity = 0.3;
+        puzzleGame.defaultCallback = () => {
             this.puzzleSolved();
         }
 
@@ -66,10 +65,14 @@ class App extends Component {
     //on new game
     startNewPuzzle() {
 
-        this.setState({loaded: false, solved: false, maasObject: null});
+        //set loading state
+        this.setState({loaded: false});
 
         //fetch a random object from the collection
-        this.fetchRandomObject();
+        setTimeout(()=>{
+            this.fetchRandomObject();
+            document.body.scrollTop = 0;
+        },500);
 
     }
 
@@ -81,17 +84,17 @@ class App extends Component {
         //query a random object from the maas api using random skip number based off total
         maasApiClient.query({
             query: gql `query maasAssessment($randomSkip: Int) {
-                objects(limit:1, skip: $randomSkip) {
-                    title
-                    summary
+                objects(filter:{hasMedia: true}, limit:1, skip: $randomSkip) {
+                    _id
+                    displayTitle
+                    description
                     mainImage {
                         url
                     }
-                    images {
-                        url
-                    }
-                    production {
-                        date
+                    dimensions {
+                        height
+                        width
+                        depth
                     }
                 }
             }`,
@@ -101,29 +104,36 @@ class App extends Component {
         }).then(response => {
 
             //check to make sure randomly queried image has title, summary and a main image
-            if (response.data.objects[0] && response.data.objects[0].title && response.data.objects[0].summary && response.data.objects[0].mainImage && response.data.objects[0].mainImage.url) {
+            if (response.data.objects[0] &&
+                response.data.objects[0].displayTitle &&
+                response.data.objects[0].description &&
+                response.data.objects[0].mainImage &&
+                response.data.objects[0].mainImage.url) {
 
-                console.log('object found');
-                console.log(response.data.objects[0]);
+                //set reset state
+                this.setState({loaded: false, solved: false, maasObject: null, showDetails: false});
 
                 //cleanup old canvas
                 this.cleanUpPuzzle();
 
-                //create new dom image
-                var puzzleImg = new Image();
+                //create new dom image for puzzle
+                let puzzleImg = new Image();
                 puzzleImg.id = 'puzzle-image';
                 puzzleImg.src = response.data.objects[0].mainImage.url;
                 document.getElementById('puzzle-container').appendChild(puzzleImg);
 
+                //on dom image load init with puzzleGame
                 puzzleImg.onload = () => {
 
+                    //set object in state and apply positional class to puzzle game depending on image proportions
                     if (puzzleImg.width > puzzleImg.height) {
                         this.setState({loaded: true, maasObject: response.data.objects[0], tallPuzzleImage: false})
                     } else {
                         this.setState({loaded: true, maasObject: response.data.objects[0], tallPuzzleImage: true})
                     }
 
-                    window.puzzlePieces.add(puzzleImg);
+                    //init puzzle game with new object image
+                    puzzleGame.add(puzzleImg);
 
                 }
 
@@ -138,6 +148,7 @@ class App extends Component {
     }
 
     cleanUpPuzzle() {
+        //remove canvas and image puzzle elements
         let oldCanvas = document.getElementById('puzzle-image');
         if (oldCanvas) {
             oldCanvas.parentNode.removeChild(oldCanvas);
@@ -149,17 +160,20 @@ class App extends Component {
     }
 
     solvePuzzle() {
-        window.puzzlePieces.solve(document.getElementById('puzzle-image'));
+        puzzleGame.solve(document.getElementById('puzzle-image'));
         setTimeout(() => {
             this.puzzleSolved();
         }, 1000)
     }
 
     puzzleSolved() {
-        console.log('puzzle solved');
-        //cleanup old canvas
-        this.cleanUpPuzzle();
         this.setState({solved: true});
+
+        this.cleanUpPuzzle();
+
+        setTimeout(()=>{
+            this.setState({showDetails: true});
+        },1000);
     }
 
     render() {
@@ -174,22 +188,10 @@ class App extends Component {
         return (
             <div className="App">
 
-                {/* loader */}
                 <div id="loading-screen" className={this.state.loaded
                     ? 'loaded'
                     : null}>
-                    <div className="sk-cube-grid">
-                        <div className="sk-cube sk-cube1"></div>
-                        <div className="sk-cube sk-cube2"></div>
-                        <div className="sk-cube sk-cube3"></div>
-                        <div className="sk-cube sk-cube4"></div>
-                        <div className="sk-cube sk-cube5"></div>
-                        <div className="sk-cube sk-cube6"></div>
-                        <div className="sk-cube sk-cube7"></div>
-                        <div className="sk-cube sk-cube8"></div>
-                        <div className="sk-cube sk-cube9"></div>
-                    </div>
-
+                    <div className="spinner"></div>
                 </div>
 
                 <div className="container">
@@ -200,19 +202,25 @@ class App extends Component {
                         Put the pieces together and help uncover assorted objects from the MAAS collection.
                     </p>
 
-                    <div className={`game-area ${this.state.solved
-                        ? 'solved'
-                        : ''}`}>
+                    <div className={`game-area ${this.state.solved ? 'solved' : ''}`}>
 
-                        <Row>
+                        {this.state.showDetails ?
+                        <div className="object-title">
+                            {this.state.maasObject
+                                ? <h2>{this.state.maasObject.displayTitle}</h2>
+                                : null}
+                        </div>
+                        : null }
 
-                            <Col xs={puzzleWidth} xsOffset={puzzlePush} className="puzzle-col">
+                        <Row className="object-row">
+
+                            <Col xs={12} sm={6} smOffset={puzzlePush} className="puzzle-col">
 
                                 <div id="puzzle-container" className={this.state.tallPuzzleImage
                                     ? 'tall-puzzle-image'
                                     : ''}>
 
-                                    <img id="puzzle-solved" width="100%" src={this.state.solved && this.state.maasObject
+                                    <img id="puzzle-solved" width="100%" src={this.state.maasObject
                                         ? this.state.maasObject.mainImage.url
                                         : null} alt="Puzzle"/>
 
@@ -220,28 +228,49 @@ class App extends Component {
 
                             </Col>
 
-                            {this.state.solved
-                                ? <Col xs={4} className="object-details">
-                                        <div className="object-title detail">
+                            {this.state.showDetails
+                                ? <Col xs={12} sm={6} className="object-details">
+
+                                        <div className="object-description detail">
+                                            <h3>Description</h3>
                                             {this.state.maasObject
-                                                ? this.state.maasObject.title
+                                                ? this.state.maasObject.description
                                                 : null}
                                         </div>
-                                        <div className="object-summary detail">
-                                            {this.state.maasObject
-                                                ? this.state.maasObject.summary
-                                                : null}
+
+                                        {this.state.maasObject && this.state.maasObject.dimensions.height || this.state.maasObject.dimensions.width || this.state.maasObject.dimensions.depth ?
+                                        <div className="object-dimensions detail">
+                                            <h3>Dimensions</h3>
+                                            {this.state.maasObject && this.state.maasObject.dimensions.height ?
+                                                <div><span className="spec">Height:</span> {this.state.maasObject.dimensions.height}mm</div>
+                                            : null }
+                                            {this.state.maasObject && this.state.maasObject.dimensions.width ?
+                                                <div><span className="spec">Width:</span> {this.state.maasObject.dimensions.width}mm</div>
+                                            : null }
+                                            {this.state.maasObject && this.state.maasObject.dimensions.depth ?
+                                                <div><span className="spec">Depth:</span> {this.state.maasObject.dimensions.depth}mm</div>
+                                            : null }
                                         </div>
+                                        : null }
+
+                                        <div className="detail">
+                                            <a className="button-link" href={`https://collection.maas.museum/object/${this.state.maasObject._id}`} target="_blank">View object on MAAS website</a>
+                                        </div>
+
                                     </Col>
                                 : null}
 
                         </Row>
 
-                        {!this.state.solved
-                            ? <button onClick={this.solvePuzzle}>Solve it for me</button>
-                            : null}
+                        <div className="controls">
 
-                        <button onClick={this.startNewPuzzle}>Find another object!</button>
+                            {!this.state.solved
+                                ? <button onClick={this.solvePuzzle}>Solve it for me</button>
+                                : null}
+
+                            <button onClick={this.startNewPuzzle}>Find another object!</button>
+
+                        </div>
 
                     </div>
 
@@ -257,5 +286,8 @@ class App extends Component {
 const maasApiClient = new ApolloClient({
     networkInterface: createNetworkInterface({uri: 'https://api.maas.museum/graphql'})
 });
+
+//register puzzleGame
+const puzzleGame = window.puzzleGame;
 
 export default App;

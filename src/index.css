@@ -1,3 +1,6 @@
+* {
+  box-sizing: border-box; }
+
 body {
   margin: 0;
   padding: 0;
@@ -10,58 +13,56 @@ body {
 h1 {
   font-family: 'Circular Bold'; }
 
+h2 {
+  font-family: 'Circular Bold';
+  font-size: 1.4em; }
+
+h3:first-child {
+  margin-top: 0; }
+
 .container {
   margin: auto;
   max-width: 1024px;
   padding: 0 20px; }
 
-.sk-cube-grid {
-  width: 100px;
-  height: 100px;
-  margin: 100px auto; }
+button, .button-link {
+  display: inline-block;
+  background: #111;
+  font-family: 'Circular Bold';
+  font-size: 1.1em;
+  color: white;
+  border: none;
+  margin: 10px;
+  padding: 15px;
+  transition: background 0.3s;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer; }
+  button:hover, .button-link:hover {
+    background: #e30066; }
+  button.button-link, .button-link.button-link {
+    margin: 10px 0; }
+  @media (max-width: 600px) {
+    button, .button-link {
+      display: block;
+      width: 100%;
+      margin: 10px 0; } }
 
-.sk-cube-grid .sk-cube {
-  width: 22%;
-  height: 22%;
-  margin: 2%;
+.spinner {
+  width: 40px;
+  height: 40px;
   background-color: #333;
-  float: left;
-  animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out; }
+  margin: 100px auto;
+  backface-visibility: hidden;
+  animation: sk-rotateplane 1.2s infinite ease-in-out; }
 
-.sk-cube-grid .sk-cube1 {
-  animation-delay: 0.2s; }
-
-.sk-cube-grid .sk-cube2 {
-  animation-delay: 0.3s; }
-
-.sk-cube-grid .sk-cube3 {
-  animation-delay: 0.4s; }
-
-.sk-cube-grid .sk-cube4 {
-  animation-delay: 0.1s; }
-
-.sk-cube-grid .sk-cube5 {
-  animation-delay: 0.2s; }
-
-.sk-cube-grid .sk-cube6 {
-  animation-delay: 0.3s; }
-
-.sk-cube-grid .sk-cube7 {
-  animation-delay: 0s; }
-
-.sk-cube-grid .sk-cube8 {
-  animation-delay: 0.1s; }
-
-.sk-cube-grid .sk-cube9 {
-  animation-delay: 0.2s; }
-
-@keyframes sk-cubeGridScaleDelay {
-  0%,
-  100%,
-  70% {
-    transform: scale3D(1, 1, 1); }
-  35% {
-    transform: scale3D(0, 0, 1); } }
+@keyframes sk-rotateplane {
+  0% {
+    transform: perspective(120px) rotateX(0deg) rotateY(0deg); }
+  50% {
+    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg); }
+  100% {
+    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg); } }
 
 #loading-screen {
   position: fixed;
@@ -77,16 +78,20 @@ h1 {
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  transition: all 1s; }
+  transition: opacity 0.5s; }
   #loading-screen.loaded {
     opacity: 0; }
+
+.game-area {
+  position: relative;
+  margin: 40px 0; }
 
 #puzzle-container {
   position: relative;
   margin: auto;
   width: 100%;
   padding-bottom: 100%;
-  background: pink; }
+  background: white; }
   #puzzle-container canvas,
   #puzzle-container img {
     position: absolute;
@@ -103,26 +108,57 @@ h1 {
 
 #puzzle-image {
   z-index: 3;
-  background: lightgreen; }
+  transition: all .5s;
+  background: #111; }
 
 #puzzle-solved {
-  z-index: 2;
+  z-index: 4;
   left: 0;
   top: 0;
   pointer-events: none;
-  opacity: 0; }
+  opacity: 0;
+  transition: all .5s; }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+
+@keyframes scaleIn {
+  0% {
+    transform: scale3d(0, 0, 0); }
+  100% {
+    transform: scale3d(1, 1, 1); } }
 
 .puzzle-col {
   transform: translate3d(0, 0, 0); }
 
 .object-details {
-  text-align: left; }
-  .object-details .detail {
-    margin-bottom: 15px;
-    opacity: 0;
-    transform: translateX(-30px); }
-  .object-details .object-title {
-    font-family: 'Circular Bold'; }
+  text-align: left;
+  padding-left: 30px;
+  padding-right: 30px;
+  animation: fadeIn 1s; }
+  @media only screen and (max-width: 47em) {
+    .object-details {
+      margin-top: 20px;
+      padding-left: 15px;
+      padding-right: 15px; } }
+
+.detail {
+  margin-bottom: 30px; }
+
+.object-title {
+  animation: scaleIn 0.5s; }
+  .object-title h2 {
+    margin-top: 0; }
+
+.spec {
+  font-family: 'Circular Bold'; }
+
+.solved .puzzle-col {
+  transition-delay: 1s;
+  transition: all .5s; }
 
 .solved #puzzle-solved {
   opacity: 1; }
@@ -130,6 +166,5 @@ h1 {
 .solved #puzzle-image {
   opacity: 0; }
 
-.solved .detail {
-  opacity: 1;
-  transform: translateX(0px); }
+.controls {
+  margin: 15px 0; }
